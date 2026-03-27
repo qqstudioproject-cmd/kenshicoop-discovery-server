@@ -1,0 +1,23 @@
+{
+  "name": "kenshicoop-discovery-server",
+  "version": "0.1.0",
+  "description": "HTTP discovery registry for KenshiCoop active worlds",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js"
+  },
+  "keywords": [
+    "kenshi",
+    "kenshicoop",
+    "discovery",
+    "registry",
+    "server"
+  ],
+  "author": "QQStudio",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
