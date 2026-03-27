@@ -1,6 +1,7 @@
 const express = require("express");
 const env = require("./config/env");
 const registryService = require("./services/registryService");
+const worldsRoutes = require("./routes/worldsRoutes");
 
 function createApp() {
   const app = express();
@@ -33,6 +34,8 @@ function createApp() {
       cleanupIntervalMs: env.cleanupIntervalMs
     });
   });
+
+  app.use("/worlds", worldsRoutes);
 
   app.use((req, res) => {
     res.status(404).json({
