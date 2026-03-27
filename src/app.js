@@ -1,5 +1,6 @@
 const express = require("express");
 const env = require("./config/env");
+const registryService = require("./services/registryService");
 
 function createApp() {
   const app = express();
@@ -21,6 +22,15 @@ function createApp() {
       service: "kenshicoop-discovery-server",
       version: "0.1.0",
       environment: env.nodeEnv
+    });
+  });
+
+  app.get("/registry/status", (req, res) => {
+    res.status(200).json({
+      status: "ok",
+      worldCount: registryService.getWorldCount(),
+      ttlMs: env.worldTtlMs,
+      cleanupIntervalMs: env.cleanupIntervalMs
     });
   });
 
