@@ -1,6 +1,7 @@
 const http = require("http");
 const createApp = require("./app");
 const env = require("./config/env");
+const cleanupService = require("./services/cleanupService");
 
 const app = createApp();
 const server = http.createServer(app);
@@ -9,6 +10,8 @@ server.listen(env.port, () => {
   console.log(
     `[DiscoveryServer] Listening on port ${env.port} | env=${env.nodeEnv}`
   );
+
+  cleanupService.startCleanupLoop();
 });
 
 server.on("error", (error) => {
@@ -18,6 +21,8 @@ server.on("error", (error) => {
 
 function shutdown(signal) {
   console.log(`[DiscoveryServer] Shutdown requested | signal=${signal}`);
+
+  cleanupService.stopCleanupLoop();
 
   server.close((error) => {
     if (error) {
