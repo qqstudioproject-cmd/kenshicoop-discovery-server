@@ -91,6 +91,7 @@ function getRegistryDebugInfo(req, res) {
       const ageDays = Number((ageMs / (24 * 60 * 60 * 1000)).toFixed(2));
 
       return {
+        worldId: world.worldId,
         worldName: world.worldName,
         hostNickname: world.hostNickname,
         worldSettings: world.worldSettings,
