@@ -6,6 +6,8 @@ const registryService = require("./services/registryService");
 const worldsRoutes = require("./routes/worldsRoutes");
 const worldsController = require("./controllers/worldsController");
 const launcherRoutes = require("./routes/launcherRoutes");
+const lobbyRoutes = require("./routes/lobbyRoutes");
+const chatRoutes = require("./routes/chatRoutes");
 
 function createApp() {
   const app = express();
@@ -43,6 +45,10 @@ function createApp() {
   app.get("/registry/debug", worldsController.getRegistryDebugInfo);
 
   app.use("/worlds", worldsRoutes);
+
+  app.use("/lobby", lobbyRoutes);
+  
+  app.use("/chat", chatRoutes);
 
   app.use("/uploads", express.static(path.resolve(process.cwd(), "uploads")));
 
