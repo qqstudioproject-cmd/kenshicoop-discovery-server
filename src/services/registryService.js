@@ -41,7 +41,6 @@ function normalizeWorldEntry(input) {
 function registerWorld(input) {
   const normalized = normalizeWorldEntry(input);
   const key = buildWorldKey(
-    worldId: existing.worldId,
     normalized.worldName,
     normalized.advertisedAddress,
     normalized.advertisedPort
@@ -51,6 +50,7 @@ function registerWorld(input) {
   if (existing) {
     const updated = {
       ...existing,
+      worldId: existing.worldId,
       hostNickname: normalized.hostNickname,
       worldSettings: normalized.worldSettings,
       passwordProtected: normalized.passwordProtected,
