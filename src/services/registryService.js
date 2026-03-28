@@ -6,6 +6,52 @@ function buildWorldKey(worldName, advertisedAddress, advertisedPort) {
   return `${worldName}@@${advertisedAddress}@@${advertisedPort}`;
 }
 
+function findWorld(worldName, advertisedAddress, advertisedPort) {
+  const key = buildWorldKey(
+    String(worldName || "").trim(),
+    String(advertisedAddress || "").trim(),
+    Number.isFinite(advertisedPort) ? advertisedPort : Number(advertisedPort) || 0
+  );
+
+  return worlds.get(key) || null;
+}
+
+function updateWorldPlayerCount(worldName, advertisedAddress, advertisedPort, playerCount) {
+  const existing = findWorld(worldName, advertisedAddress, advertisedPort);
+  if (!existing) {
+    return null;
+  }
+
+  const updated = {
+    ...existing,
+    playerCount,
+    updatedAt: getNowMs(),
+    lastSeenAt: getNowMs()
+  };
+
+  const key = buildWorldKey(updated.worldName, updated.advertisedAddress, updated.advertisedPort);
+  worlds.set(key, updated);
+  return updated;
+}
+
+function updateWorldPasswordProtected(worldName, advertisedAddress, advertisedPort, passwordProtected) {
+  const existing = findWorld(worldName, advertisedAddress, advertisedPort);
+  if (!existing) {
+    return null;
+  }
+
+  const updated = {
+    ...existing,
+    passwordProtected: Boolean(passwordProtected),
+    updatedAt: getNowMs(),
+    lastSeenAt: getNowMs()
+  };
+
+  const key = buildWorldKey(updated.worldName, updated.advertisedAddress, updated.advertisedPort);
+  worlds.set(key, updated);
+  return updated;
+}
+
 function normalizeWorldEntry(input) {
   const nowMs = getNowMs();
 
@@ -153,5 +199,8 @@ module.exports = {
   getAllWorlds,
   getWorldCount,
   clearAllWorlds,
-  pruneStaleWorlds
+  pruneStaleWorlds,
+  findWorld,
+  updateWorldPlayerCount,
+  updateWorldPasswordProtected,
 };
