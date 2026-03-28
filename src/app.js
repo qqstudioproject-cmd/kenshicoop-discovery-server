@@ -2,6 +2,7 @@ const express = require("express");
 const env = require("./config/env");
 const registryService = require("./services/registryService");
 const worldsRoutes = require("./routes/worldsRoutes");
+const worldsController = require("./controllers/worldsController");
 
 function createApp() {
   const app = express();
@@ -30,10 +31,13 @@ function createApp() {
     res.status(200).json({
       status: "ok",
       worldCount: registryService.getWorldCount(),
-      ttlMs: env.worldTtlMs,
+      worldTtlMs: env.worldTtlMs,
+      worldTtlDays: Number((env.worldTtlMs / (24 * 60 * 60 * 1000)).toFixed(2)),
       cleanupIntervalMs: env.cleanupIntervalMs
     });
   });
+
+  app.get("/registry/debug", worldsController.getRegistryDebugInfo);
 
   app.use("/worlds", worldsRoutes);
 
