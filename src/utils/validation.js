@@ -3,6 +3,7 @@ const MAX_HOST_NICKNAME_LENGTH = 64;
 const MAX_WORLD_SETTINGS_LENGTH = 128;
 const MAX_ADVERTISED_ADDRESS_LENGTH = 128;
 const MAX_HOST_SESSION_ID_LENGTH = 64;
+const MAX_MESSAGE_TEXT_LENGTH = 512;
 
 function normalizeTrimmedString(value) {
   return String(value ?? "").trim();
@@ -243,8 +244,246 @@ function validateUnregisterPayload(body) {
   };
 }
 
+function validateLobbyLookupPayload(source) {
+  const details = [];
+
+  const worldName = validateStringField({
+    fieldName: "worldName",
+    value: source.worldName,
+    required: true,
+    maxLength: MAX_WORLD_NAME_LENGTH
+  });
+  details.push(...worldName.errors);
+
+  const advertisedAddress = validateStringField({
+    fieldName: "advertisedAddress",
+    value: source.advertisedAddress,
+    required: true,
+    maxLength: MAX_ADVERTISED_ADDRESS_LENGTH
+  });
+  details.push(...advertisedAddress.errors);
+
+  const advertisedPort = Number(source.advertisedPort);
+  if (!isValidPort(advertisedPort)) {
+    details.push("advertisedPort must be an integer between 1 and 65535");
+  }
+
+  if (details.length > 0) {
+    return {
+      ok: false,
+      error: buildValidationError("Invalid lobby lookup payload", details)
+    };
+  }
+
+  return {
+    ok: true,
+    value: {
+      worldName: worldName.value,
+      advertisedAddress: advertisedAddress.value,
+      advertisedPort
+    }
+  };
+}
+
+function validateJoinLobbyPayload(body) {
+  const base = validateLobbyLookupPayload(body);
+  if (!base.ok) {
+    return base;
+  }
+
+  const details = [];
+
+  const coopNickname = validateStringField({
+    fieldName: "coopNickname",
+    value: body.coopNickname,
+    required: true,
+    maxLength: MAX_HOST_NICKNAME_LENGTH
+  });
+  details.push(...coopNickname.errors);
+
+  const pingMs = Number(body.pingMs ?? 0);
+  if (!isValidNonNegativeInteger(pingMs)) {
+    details.push("pingMs must be a non-negative integer");
+  }
+
+  if (details.length > 0) {
+    return {
+      ok: false,
+      error: buildValidationError("Invalid join lobby payload", details)
+    };
+  }
+
+  return {
+    ok: true,
+    value: {
+      ...base.value,
+      coopNickname: coopNickname.value,
+      pingMs
+    }
+  };
+}
+
+function validateLeaveLobbyPayload(body) {
+  const base = validateLobbyLookupPayload(body);
+  if (!base.ok) {
+    return base;
+  }
+
+  const coopNickname = validateStringField({
+    fieldName: "coopNickname",
+    value: body.coopNickname,
+    required: true,
+    maxLength: MAX_HOST_NICKNAME_LENGTH
+  });
+
+  if (coopNickname.errors.length > 0) {
+    return {
+      ok: false,
+      error: buildValidationError("Invalid leave lobby payload", coopNickname.errors)
+    };
+  }
+
+  return {
+    ok: true,
+    value: {
+      ...base.value,
+      coopNickname: coopNickname.value
+    }
+  };
+}
+
+function validateRemoveLobbyPlayerPayload(body) {
+  const base = validateLobbyLookupPayload(body);
+  if (!base.ok) {
+    return base;
+  }
+
+  const requesterNickname = validateStringField({
+    fieldName: "requesterNickname",
+    value: body.requesterNickname,
+    required: true,
+    maxLength: MAX_HOST_NICKNAME_LENGTH
+  });
+
+  const targetCoopNickname = validateStringField({
+    fieldName: "targetCoopNickname",
+    value: body.targetCoopNickname,
+    required: true,
+    maxLength: MAX_HOST_NICKNAME_LENGTH
+  });
+
+  const details = [
+    ...requesterNickname.errors,
+    ...targetCoopNickname.errors
+  ];
+
+  if (details.length > 0) {
+    return {
+      ok: false,
+      error: buildValidationError("Invalid remove lobby player payload", details)
+    };
+  }
+
+  return {
+    ok: true,
+    value: {
+      ...base.value,
+      requesterNickname: requesterNickname.value,
+      targetCoopNickname: targetCoopNickname.value
+    }
+  };
+}
+
+function validatePasswordSettingsPayload(body) {
+  const base = validateLobbyLookupPayload(body);
+  if (!base.ok) {
+    return base;
+  }
+
+  const worldPassword = validateStringField({
+    fieldName: "worldPassword",
+    value: body.worldPassword,
+    required: false,
+    maxLength: MAX_WORLD_NAME_LENGTH
+  });
+
+  const disablePassword = typeof body.disablePassword === "boolean"
+    ? body.disablePassword
+    : null;
+
+  const details = [...worldPassword.errors];
+
+  if (disablePassword === null) {
+    details.push("disablePassword must be a boolean");
+  }
+
+  if (details.length > 0) {
+    return {
+      ok: false,
+      error: buildValidationError("Invalid password settings payload", details)
+    };
+  }
+
+  return {
+    ok: true,
+    value: {
+      ...base.value,
+      worldPassword: worldPassword.value,
+      disablePassword
+    }
+  };
+}
+
+function validateAppendChatMessagePayload(body) {
+  const base = validateLobbyLookupPayload(body);
+  if (!base.ok) {
+    return base;
+  }
+
+  const coopNickname = validateStringField({
+    fieldName: "coopNickname",
+    value: body.coopNickname,
+    required: true,
+    maxLength: MAX_HOST_NICKNAME_LENGTH
+  });
+
+  const messageText = validateStringField({
+    fieldName: "messageText",
+    value: body.messageText,
+    required: true,
+    maxLength: MAX_MESSAGE_TEXT_LENGTH
+  });
+
+  const details = [
+    ...coopNickname.errors,
+    ...messageText.errors
+  ];
+
+  if (details.length > 0) {
+    return {
+      ok: false,
+      error: buildValidationError("Invalid append chat message payload", details)
+    };
+  }
+
+  return {
+    ok: true,
+    value: {
+      ...base.value,
+      coopNickname: coopNickname.value,
+      messageText: messageText.value
+    }
+  };
+}
+
 module.exports = {
   validateRegisterWorldPayload,
   validateHeartbeatPayload,
-  validateUnregisterPayload
+  validateUnregisterPayload,
+  validateLobbyLookupPayload,
+  validateJoinLobbyPayload,
+  validateLeaveLobbyPayload,
+  validateRemoveLobbyPlayerPayload,
+  validatePasswordSettingsPayload,
+  validateAppendChatMessagePayload
 };
