@@ -1,6 +1,6 @@
 const DEFAULT_PORT = 3000;
-const DEFAULT_WORLD_TTL_MS = 30000;
-const DEFAULT_CLEANUP_INTERVAL_MS = 5000;
+const DEFAULT_WORLD_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+const DEFAULT_CLEANUP_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
 
 function parsePositiveInt(value, fallbackValue) {
   const parsed = Number.parseInt(value, 10);
