@@ -79,9 +79,41 @@ function unregisterWorld(req, res) {
   });
 }
 
+function getRegistryDebugInfo(req, res) {
+  const nowMs = Date.now();
+  const worlds = registryService.getAllWorlds();
+
+  res.status(200).json({
+    status: "ok",
+    count: worlds.length,
+    worlds: worlds.map((world) => {
+      const ageMs = nowMs - world.lastSeenAt;
+      const ageDays = Number((ageMs / (24 * 60 * 60 * 1000)).toFixed(2));
+
+      return {
+        worldName: world.worldName,
+        hostNickname: world.hostNickname,
+        worldSettings: world.worldSettings,
+        advertisedAddress: world.advertisedAddress,
+        advertisedPort: world.advertisedPort,
+        playerCount: world.playerCount,
+        passwordProtected: world.passwordProtected,
+        protocolVersion: world.protocolVersion,
+        hostSessionId: world.hostSessionId,
+        createdAt: world.createdAt,
+        updatedAt: world.updatedAt,
+        lastSeenAt: world.lastSeenAt,
+        ageMs,
+        ageDays
+      };
+    })
+  });
+}
+
 module.exports = {
   listWorlds,
   registerWorld,
   heartbeatWorld,
-  unregisterWorld
+  unregisterWorld,
+  getRegistryDebugInfo
 };
