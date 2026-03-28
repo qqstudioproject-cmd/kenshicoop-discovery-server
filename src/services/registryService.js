@@ -9,16 +9,29 @@ function buildWorldKey(worldName, advertisedAddress, advertisedPort) {
 function normalizeWorldEntry(input) {
   const nowMs = getNowMs();
 
+  const worldName = String(input.worldName || "").trim();
+  const hostNickname = String(input.hostNickname || "").trim();
+  const worldSettings = String(input.worldSettings || "").trim();
+  const passwordProtected = Boolean(input.passwordProtected);
+  const playerCount = Number.isFinite(input.playerCount) ? input.playerCount : 0;
+  const advertisedAddress = String(input.advertisedAddress || "").trim();
+  const advertisedPort = Number.isFinite(input.advertisedPort) ? input.advertisedPort : 0;
+  const protocolVersion = Number.isFinite(input.protocolVersion) ? input.protocolVersion : 0;
+  const hostSessionId = String(input.hostSessionId || "").trim();
+
+  const worldId = buildWorldKey(worldName, advertisedAddress, advertisedPort);
+
   return {
-    worldName: String(input.worldName || "").trim(),
-    hostNickname: String(input.hostNickname || "").trim(),
-    worldSettings: String(input.worldSettings || "").trim(),
-    passwordProtected: Boolean(input.passwordProtected),
-    playerCount: Number.isFinite(input.playerCount) ? input.playerCount : 0,
-    advertisedAddress: String(input.advertisedAddress || "").trim(),
-    advertisedPort: Number.isFinite(input.advertisedPort) ? input.advertisedPort : 0,
-    protocolVersion: Number.isFinite(input.protocolVersion) ? input.protocolVersion : 0,
-    hostSessionId: String(input.hostSessionId || "").trim(),
+    worldId,
+    worldName,
+    hostNickname,
+    worldSettings,
+    passwordProtected,
+    playerCount,
+    advertisedAddress,
+    advertisedPort,
+    protocolVersion,
+    hostSessionId,
     createdAt: input.createdAt || nowMs,
     updatedAt: nowMs,
     lastSeenAt: nowMs
@@ -28,6 +41,7 @@ function normalizeWorldEntry(input) {
 function registerWorld(input) {
   const normalized = normalizeWorldEntry(input);
   const key = buildWorldKey(
+    worldId: existing.worldId,
     normalized.worldName,
     normalized.advertisedAddress,
     normalized.advertisedPort
