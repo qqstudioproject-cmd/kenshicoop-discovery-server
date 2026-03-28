@@ -1,8 +1,11 @@
 const express = require("express");
+const path = require("path");
+
 const env = require("./config/env");
 const registryService = require("./services/registryService");
 const worldsRoutes = require("./routes/worldsRoutes");
 const worldsController = require("./controllers/worldsController");
+const launcherRoutes = require("./routes/launcherRoutes");
 
 function createApp() {
   const app = express();
@@ -40,6 +43,10 @@ function createApp() {
   app.get("/registry/debug", worldsController.getRegistryDebugInfo);
 
   app.use("/worlds", worldsRoutes);
+
+  app.use("/uploads", express.static(path.resolve(process.cwd(), "uploads")));
+
+  app.use("/launcher", launcherRoutes);
 
   app.use((req, res) => {
     res.status(404).json({
