@@ -1,10 +1,9 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const env = require("../config/env");
 
 const uploadsRoot = path.resolve(process.cwd(), "uploads");
-const publicBaseUrl = "https://serv.qqstudio.pro/uploads/";
-const manifestVersion = "1.0.0";
 
 function hashFileSha256(filePath) {
   const fileBuffer = fs.readFileSync(filePath);
@@ -42,8 +41,8 @@ function buildManifest() {
 
   if (!fs.existsSync(uploadsRoot)) {
     return {
-      Version: manifestVersion,
-      BaseUrl: publicBaseUrl,
+      Version: env.launcherManifestVersion,
+      BaseUrl: env.launcherBaseUrl,
       Files: []
     };
   }
@@ -53,8 +52,8 @@ function buildManifest() {
   files.sort((a, b) => a.Path.localeCompare(b.Path));
 
   return {
-    Version: manifestVersion,
-    BaseUrl: publicBaseUrl,
+    Version: env.launcherManifestVersion,
+    BaseUrl: env.launcherBaseUrl,
     Files: files
   };
 }
