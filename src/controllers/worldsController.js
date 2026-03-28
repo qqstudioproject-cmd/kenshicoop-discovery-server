@@ -1,4 +1,7 @@
 const registryService = require("../services/registryService");
+const lobbyService = require("../services/lobbyService");
+const chatService = require("../services/chatService");
+
 const {
   validateRegisterWorldPayload,
   validateHeartbeatPayload,
@@ -72,6 +75,18 @@ function unregisterWorld(req, res) {
     });
     return;
   }
+
+    lobbyService.deleteLobbyForWorld(
+    validation.value.worldName,
+    validation.value.advertisedAddress,
+    validation.value.advertisedPort
+  );
+
+  chatService.clearMessagesForWorld(
+    validation.value.worldName,
+    validation.value.advertisedAddress,
+    validation.value.advertisedPort
+  );
 
   res.status(200).json({
     status: "ok",
