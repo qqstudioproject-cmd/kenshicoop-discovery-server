@@ -1,4 +1,9 @@
 const registryService = require("../services/registryService");
+const {
+  validateRegisterWorldPayload,
+  validateHeartbeatPayload,
+  validateUnregisterPayload
+} = require("../utils/validation");
 
 function listWorlds(req, res) {
   const worlds = registryService.getAllWorlds();
@@ -11,7 +16,13 @@ function listWorlds(req, res) {
 }
 
 function registerWorld(req, res) {
-  const result = registryService.registerWorld(req.body || {});
+  const validation = validateRegisterWorldPayload(req.body || {});
+  if (!validation.ok) {
+    res.status(400).json(validation.error);
+    return;
+  }
+
+  const result = registryService.registerWorld(validation.value);
 
   res.status(result.created ? 201 : 200).json({
     status: "ok",
@@ -21,7 +32,13 @@ function registerWorld(req, res) {
 }
 
 function heartbeatWorld(req, res) {
-  const updatedWorld = registryService.heartbeatWorld(req.body || {});
+  const validation = validateHeartbeatPayload(req.body || {});
+  if (!validation.ok) {
+    res.status(400).json(validation.error);
+    return;
+  }
+
+  const updatedWorld = registryService.heartbeatWorld(validation.value);
 
   if (!updatedWorld) {
     res.status(404).json({
@@ -39,7 +56,13 @@ function heartbeatWorld(req, res) {
 }
 
 function unregisterWorld(req, res) {
-  const removed = registryService.unregisterWorld(req.body || {});
+  const validation = validateUnregisterPayload(req.body || {});
+  if (!validation.ok) {
+    res.status(400).json(validation.error);
+    return;
+  }
+
+  const removed = registryService.unregisterWorld(validation.value);
 
   if (!removed) {
     res.status(404).json({
