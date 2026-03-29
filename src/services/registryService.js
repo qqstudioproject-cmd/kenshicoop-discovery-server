@@ -78,6 +78,7 @@ function normalizeWorldEntry(input) {
     advertisedPort,
     protocolVersion,
     hostSessionId,
+    ownerSessionId: hostSessionId,
     createdAt: input.createdAt || nowMs,
     updatedAt: nowMs,
     lastSeenAt: nowMs
@@ -103,6 +104,7 @@ function registerWorld(input) {
       playerCount: normalized.playerCount,
       protocolVersion: normalized.protocolVersion,
       hostSessionId: normalized.hostSessionId,
+      ownerSessionId: existing.ownerSessionId || normalized.ownerSessionId,
       updatedAt: normalized.updatedAt,
       lastSeenAt: normalized.lastSeenAt
     };
