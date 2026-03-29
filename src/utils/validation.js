@@ -88,7 +88,7 @@ function validateRegisterWorldPayload(body) {
     fieldName: "hostSessionId",
     value: body.hostSessionId,
     required: true,
-    maxLength: MAX_HOST_SESSION_ID_LENGTH
+    maxLength: MAX_IDENTITY_ID_LENGTH
   });
   details.push(...hostSessionId.errors);
 
@@ -170,7 +170,7 @@ function validateHeartbeatPayload(body) {
     fieldName: "hostSessionId",
     value: body.hostSessionId,
     required: true,
-    maxLength: MAX_HOST_SESSION_ID_LENGTH
+    maxLength: MAX_IDENTITY_ID_LENGTH
   });
   details.push(...hostSessionId.errors);
 
@@ -226,7 +226,7 @@ function validateUnregisterPayload(body) {
     fieldName: "hostSessionId",
     value: body.hostSessionId,
     required: true,
-    maxLength: MAX_HOST_SESSION_ID_LENGTH
+    maxLength: MAX_IDENTITY_ID_LENGTH
   });
   details.push(...hostSessionId.errors);
 
