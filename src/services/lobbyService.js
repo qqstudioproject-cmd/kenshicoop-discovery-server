@@ -227,6 +227,16 @@ function removePlayer(input) {
     };
   }
 
+  const key = buildLobbyKey(world.worldName, world.advertisedAddress, world.advertisedPort);
+  const lobby = lobbies.get(key);
+
+  if (!lobby) {
+    return {
+      ok: false,
+      error: "LobbyNotFound"
+    };
+  }
+
   const targetIsOwner = lobby.players.some(
     (player) => player.coopNickname === input.targetCoopNickname && player.isHost
   );
@@ -235,16 +245,6 @@ function removePlayer(input) {
     return {
       ok: false,
       error: "CannotRemoveHost"
-    };
-  }
-
-  const key = buildLobbyKey(world.worldName, world.advertisedAddress, world.advertisedPort);
-  const lobby = lobbies.get(key);
-
-  if (!lobby) {
-    return {
-      ok: false,
-      error: "LobbyNotFound"
     };
   }
 
