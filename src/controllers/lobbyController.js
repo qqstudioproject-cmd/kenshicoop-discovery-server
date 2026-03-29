@@ -78,7 +78,8 @@ function removeLobbyPlayer(req, res) {
 
   const result = lobbyService.removePlayer(validation.value);
   if (!result.ok) {
-    return res.status(404).json({
+    const statusCode = result.error === "Forbidden" ? 403 : 404;
+    return res.status(statusCode).json({
       status: "error",
       error: result.error,
       message: "Remove lobby player failed"
@@ -99,7 +100,8 @@ function updatePasswordSettings(req, res) {
 
   const result = lobbyService.updatePasswordSettings(validation.value);
   if (!result.ok) {
-    return res.status(404).json({
+    const statusCode = result.error === "Forbidden" ? 403 : 404;
+    return res.status(statusCode).json({
       status: "error",
       error: result.error,
       message: "Password settings update failed"
