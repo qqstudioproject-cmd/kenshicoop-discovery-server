@@ -27,7 +27,7 @@ function createApp() {
     res.status(200).json({
       status: "ok",
       service: "kenshicoop-discovery-server",
-      version: "0.1.0",
+      version: "1.0.1",
       environment: env.nodeEnv
     });
   });
