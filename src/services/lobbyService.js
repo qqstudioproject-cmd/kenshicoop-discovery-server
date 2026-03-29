@@ -23,6 +23,7 @@ function cloneLobby(lobby) {
     worldSettings: lobby.worldSettings,
     hostNickname: lobby.hostNickname,
     hostSessionId: lobby.hostSessionId,
+    ownerSessionId: lobby.ownerSessionId,
     advertisedAddress: lobby.advertisedAddress,
     advertisedPort: lobby.advertisedPort,
     passwordProtected: lobby.passwordProtected,
@@ -34,6 +35,12 @@ function cloneLobby(lobby) {
   };
 }
 
+function isRequesterOwner(world, requesterSessionId) {
+  const normalizedRequester = String(requesterSessionId || "").trim();
+  const ownerSessionId = String(world.ownerSessionId || world.hostSessionId || "").trim();
+  return normalizedRequester.length > 0 && ownerSessionId.length > 0 && normalizedRequester === ownerSessionId;
+}
+
 function ensureLobbyFromWorld(world) {
   const key = buildLobbyKey(world.worldName, world.advertisedAddress, world.advertisedPort);
   const nowMs = getNowMs();
@@ -43,6 +50,7 @@ function ensureLobbyFromWorld(world) {
     existing.worldSettings = world.worldSettings;
     existing.hostNickname = world.hostNickname;
     existing.hostSessionId = world.hostSessionId;
+    existing.ownerSessionId = world.ownerSessionId || world.hostSessionId;
     existing.passwordProtected = world.passwordProtected;
     existing.protocolVersion = world.protocolVersion;
     existing.updatedAt = nowMs;
@@ -55,6 +63,7 @@ function ensureLobbyFromWorld(world) {
     worldSettings: world.worldSettings,
     hostNickname: world.hostNickname,
     hostSessionId: world.hostSessionId,
+    ownerSessionId: world.ownerSessionId || world.hostSessionId,
     advertisedAddress: world.advertisedAddress,
     advertisedPort: world.advertisedPort,
     passwordProtected: world.passwordProtected,
@@ -108,19 +117,35 @@ function joinLobby(input) {
   const lobby = ensureLobbyFromWorld(world);
   const nowMs = getNowMs();
 
+  const requesterIsOwner = isRequesterOwner(world, input.requesterSessionId);
+
   const existingPlayer = lobby.players.find(
     (player) => player.coopNickname === input.coopNickname
   );
 
+  if (requesterIsOwner) {
+    for (const player of lobby.players) {
+      player.isHost = false;
+    }
+  }
+
   if (existingPlayer) {
     existingPlayer.pingMs = Number.isInteger(input.pingMs) ? input.pingMs : existingPlayer.pingMs;
+    if (requesterIsOwner) {
+      existingPlayer.isHost = true;
+    }
   } else {
     lobby.players.push({
       coopNickname: input.coopNickname,
       pingMs: Number.isInteger(input.pingMs) ? input.pingMs : 0,
-      isHost: false,
+      isHost: requesterIsOwner,
       joinedAt: nowMs
     });
+  }
+
+  if (requesterIsOwner) {
+    lobby.hostNickname = input.coopNickname;
+    lobby.hostSessionId = input.requesterSessionId;
   }
 
   lobby.updatedAt = nowMs;
@@ -195,6 +220,24 @@ function removePlayer(input) {
     };
   }
 
+  if (!isRequesterOwner(world, input.requesterSessionId)) {
+    return {
+      ok: false,
+      error: "Forbidden"
+    };
+  }
+
+  const targetIsOwner = lobby.players.some(
+    (player) => player.coopNickname === input.targetCoopNickname && player.isHost
+  );
+
+  if (targetIsOwner) {
+    return {
+      ok: false,
+      error: "CannotRemoveHost"
+    };
+  }
+
   const key = buildLobbyKey(world.worldName, world.advertisedAddress, world.advertisedPort);
   const lobby = lobbies.get(key);
 
@@ -235,6 +278,13 @@ function updatePasswordSettings(input) {
     return {
       ok: false,
       error: "WorldNotFound"
+    };
+  }
+
+  if (!isRequesterOwner(world, input.requesterSessionId)) {
+    return {
+      ok: false,
+      error: "Forbidden"
     };
   }
 
