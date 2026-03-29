@@ -145,7 +145,6 @@ function joinLobby(input) {
 
   if (requesterIsOwner) {
     lobby.hostNickname = input.coopNickname;
-    lobby.hostSessionId = lobby.hostSessionId;
   }
 
   lobby.updatedAt = nowMs;
