@@ -1,7 +1,7 @@
 const DEFAULT_PORT = 3000;
 const DEFAULT_WORLD_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 const DEFAULT_CLEANUP_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
-const DEFAULT_LAUNCHER_MANIFEST_VERSION = "1.0.0";
+const DEFAULT_LAUNCHER_MANIFEST_VERSION = "1.0.1";
 const DEFAULT_LAUNCHER_BASE_URL = "https://serv.qqstudio.pro/uploads/";
 const DEFAULT_LAUNCHER_UPLOADS_DIR = "uploads";
 
