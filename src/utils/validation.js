@@ -127,6 +127,7 @@ function validateRegisterWorldPayload(body) {
     value: {
       worldName: worldName.value,
       hostNickname: hostNickname.value,
+      requesterSessionId: requesterSessionId.value,
       worldSettings: worldSettings.value,
       passwordProtected,
       playerCount,
@@ -301,6 +302,14 @@ function validateJoinLobbyPayload(body) {
   });
   details.push(...coopNickname.errors);
 
+  const requesterSessionId = validateStringField({
+    fieldName: "requesterSessionId",
+    value: body.requesterSessionId,
+    required: true,
+    maxLength: MAX_HOST_SESSION_ID_LENGTH
+  });
+  details.push(...requesterSessionId.errors);
+
   const pingMs = Number(body.pingMs ?? 0);
   if (!isValidNonNegativeInteger(pingMs)) {
     details.push("pingMs must be a non-negative integer");
@@ -318,6 +327,7 @@ function validateJoinLobbyPayload(body) {
     value: {
       ...base.value,
       coopNickname: coopNickname.value,
+      requesterSessionId: requesterSessionId.value,
       pingMs
     }
   };
@@ -329,11 +339,23 @@ function validateLeaveLobbyPayload(body) {
     return base;
   }
 
+  const details = [
+    ...coopNickname.errors,
+    ...requesterSessionId.errors
+  ];
+
   const coopNickname = validateStringField({
     fieldName: "coopNickname",
     value: body.coopNickname,
     required: true,
     maxLength: MAX_HOST_NICKNAME_LENGTH
+  });
+
+  const requesterSessionId = validateStringField({
+    fieldName: "requesterSessionId",
+    value: body.requesterSessionId,
+    required: true,
+    maxLength: MAX_HOST_SESSION_ID_LENGTH
   });
 
   if (coopNickname.errors.length > 0) {
@@ -347,7 +369,8 @@ function validateLeaveLobbyPayload(body) {
     ok: true,
     value: {
       ...base.value,
-      coopNickname: coopNickname.value
+      coopNickname: coopNickname.value,
+      requesterSessionId: requesterSessionId.value
     }
   };
 }
@@ -372,9 +395,17 @@ function validateRemoveLobbyPlayerPayload(body) {
     maxLength: MAX_HOST_NICKNAME_LENGTH
   });
 
+  const requesterSessionId = validateStringField({
+    fieldName: "requesterSessionId",
+    value: body.requesterSessionId,
+    required: true,
+    maxLength: MAX_HOST_SESSION_ID_LENGTH
+  });
+
   const details = [
     ...requesterNickname.errors,
-    ...targetCoopNickname.errors
+    ...targetCoopNickname.errors,
+    ...requesterSessionId.errors
   ];
 
   if (details.length > 0) {
@@ -389,7 +420,8 @@ function validateRemoveLobbyPlayerPayload(body) {
     value: {
       ...base.value,
       requesterNickname: requesterNickname.value,
-      targetCoopNickname: targetCoopNickname.value
+      targetCoopNickname: targetCoopNickname.value,
+      requesterSessionId: requesterSessionId.value
     }
   };
 }
@@ -407,11 +439,21 @@ function validatePasswordSettingsPayload(body) {
     maxLength: MAX_WORLD_NAME_LENGTH
   });
 
+  const requesterSessionId = validateStringField({
+    fieldName: "requesterSessionId",
+    value: body.requesterSessionId,
+    required: true,
+    maxLength: MAX_HOST_SESSION_ID_LENGTH
+  });
+
   const disablePassword = typeof body.disablePassword === "boolean"
     ? body.disablePassword
     : null;
 
-  const details = [...worldPassword.errors];
+  const details = [
+    ...worldPassword.errors,
+    ...requesterSessionId.errors
+  ];
 
   if (disablePassword === null) {
     details.push("disablePassword must be a boolean");
@@ -429,6 +471,7 @@ function validatePasswordSettingsPayload(body) {
     value: {
       ...base.value,
       worldPassword: worldPassword.value,
+      requesterSessionId: requesterSessionId.value,
       disablePassword
     }
   };
