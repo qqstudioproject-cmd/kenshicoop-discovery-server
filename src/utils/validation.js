@@ -127,7 +127,6 @@ function validateRegisterWorldPayload(body) {
     value: {
       worldName: worldName.value,
       hostNickname: hostNickname.value,
-      requesterSessionId: requesterSessionId.value,
       worldSettings: worldSettings.value,
       passwordProtected,
       playerCount,
@@ -339,11 +338,6 @@ function validateLeaveLobbyPayload(body) {
     return base;
   }
 
-  const details = [
-    ...coopNickname.errors,
-    ...requesterSessionId.errors
-  ];
-
   const coopNickname = validateStringField({
     fieldName: "coopNickname",
     value: body.coopNickname,
@@ -358,10 +352,15 @@ function validateLeaveLobbyPayload(body) {
     maxLength: MAX_HOST_SESSION_ID_LENGTH
   });
 
-  if (coopNickname.errors.length > 0) {
+  const details = [
+    ...coopNickname.errors,
+    ...requesterSessionId.errors
+  ];
+
+  if (details.length > 0) {
     return {
       ok: false,
-      error: buildValidationError("Invalid leave lobby payload", coopNickname.errors)
+      error: buildValidationError("Invalid leave lobby payload", details)
     };
   }
 
