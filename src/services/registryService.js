@@ -64,6 +64,7 @@ function normalizeWorldEntry(input) {
   const advertisedPort = Number.isFinite(input.advertisedPort) ? input.advertisedPort : 0;
   const protocolVersion = Number.isFinite(input.protocolVersion) ? input.protocolVersion : 0;
   const hostSessionId = String(input.hostSessionId || "").trim();
+  const ownerPlayerId = String(input.ownerPlayerId || "").trim();
 
   const worldId = buildWorldKey(worldName, advertisedAddress, advertisedPort);
 
@@ -78,7 +79,7 @@ function normalizeWorldEntry(input) {
     advertisedPort,
     protocolVersion,
     hostSessionId,
-    ownerSessionId: hostSessionId,
+    ownerPlayerId,
     createdAt: input.createdAt || nowMs,
     updatedAt: nowMs,
     lastSeenAt: nowMs
@@ -104,7 +105,7 @@ function registerWorld(input) {
       playerCount: normalized.playerCount,
       protocolVersion: normalized.protocolVersion,
       hostSessionId: normalized.hostSessionId,
-      ownerSessionId: existing.ownerSessionId || normalized.ownerSessionId,
+      ownerPlayerId: existing.ownerPlayerId || normalized.ownerPlayerId,
       updatedAt: normalized.updatedAt,
       lastSeenAt: normalized.lastSeenAt
     };
